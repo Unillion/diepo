@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Тест движения</title>
+    <style>
+        body { margin: 0; overflow: hidden; background: #000; color: #fff; font-family: Arial; }
+        canvas { display: block; }
+        #debug { position: fixed; top: 10px; left: 10px; background: rgba(0,0,0,0.8); padding: 10px; }
+    </style>
+</head>
+<body>
+    <div id="debug">
+        <div>Нажмите WASD для движения</div>
+        <div id="keys">Клавиши: нет</div>
+        <div id="pos">Позиция: 0, 0</div>
+    </div>
+    <canvas id="canvas"></canvas>
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        
+        const keys = {};
+        let x = canvas.width / 2;
+        let y = canvas.height / 2;
+        const speed = 5;
+        
+        document.addEventListener('keydown', (e) => {
+            keys[e.key.toLowerCase()] = true;
+            e.preventDefault();
+            console.log('Нажата клавиша:', e.key);
+        });
+        
+        document.addEventListener('keyup', (e) => {
+            keys[e.key.toLowerCase()] = false;
+        });
+        
+        function update() {
+            let dx = 0, dy = 0;
+            if (keys['w']) dy -= 1;
+            if (keys['s']) dy += 1;
+            if (keys['a']) dx -= 1;
+            if (keys['d']) dx += 1;
+            
+            if (dx !== 0 && dy !== 0) {
+                const mag = Math.sqrt(dx * dx + dy * dy);
+                dx /= mag;
+                dy /= mag;
+            }
+            
+            x += dx * speed;
+            y += dy * speed;
+            
+            // Отладка
+            const pressedKeys = Object.keys(keys).filter(k => keys[k]).join(', ') || 'нет';
+            document.getElementById('keys').textContent = `Клавиши: ${pressedKeys}`;
+            document.getElementById('pos').textContent = `Позиция: ${Math.floor(x)}, ${Math.floor(y)}`;
+            
+            // Рисование
+            ctx.fillStyle = '#000';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            ctx.fillStyle = '#4A90E2';
+            ctx.beginPath();
+            ctx.arc(x, y, 25, 0, Math.PI * 2);
+            ctx.fill();
+            
+            requestAnimationFrame(update);
+        }
+        
+        update();
+        console.log('Тест запущен! Используйте WASD для движения.');
+    </script>
+</body>
+</html>

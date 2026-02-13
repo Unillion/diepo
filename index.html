@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <title>Diep.io Game</title>
+    <link rel="stylesheet" href="style.css?v=9">
+</head>
+<body>
+    <div id="ui-container">
+        <div id="stats">
+            <div id="level">Level: 1</div>
+            <div id="score">Score: 0</div>
+        </div>
+        <div id="leaderboard">
+            <h3>Leaderboard</h3>
+            <ol id="leaderboard-list"></ol>
+        </div>
+        <div id="upgrade-panel">
+            <h3>Upgrades <span id="toggle-upgrades" style="float: right; cursor: pointer; display: none;">▼</span></h3>
+            <div class="upgrade-item">
+                <span>Health Regen</span>
+                <div class="upgrade-bar"><div class="upgrade-fill" data-stat="healthRegen"></div></div>
+                <button onclick="game.upgradePlayer('healthRegen')">+</button>
+            </div>
+            <div class="upgrade-item">
+                <span>Max Health</span>
+                <div class="upgrade-bar"><div class="upgrade-fill" data-stat="maxHealth"></div></div>
+                <button onclick="game.upgradePlayer('maxHealth')">+</button>
+            </div>
+            <div class="upgrade-item">
+                <span>Body Damage</span>
+                <div class="upgrade-bar"><div class="upgrade-fill" data-stat="bodyDamage"></div></div>
+                <button onclick="game.upgradePlayer('bodyDamage')">+</button>
+            </div>
+            <div class="upgrade-item">
+                <span>Bullet Speed</span>
+                <div class="upgrade-bar"><div class="upgrade-fill" data-stat="bulletSpeed"></div></div>
+                <button onclick="game.upgradePlayer('bulletSpeed')">+</button>
+            </div>
+            <div class="upgrade-item">
+                <span>Bullet Penetration</span>
+                <div class="upgrade-bar"><div class="upgrade-fill" data-stat="bulletPenetration"></div></div>
+                <button onclick="game.upgradePlayer('bulletPenetration')">+</button>
+            </div>
+            <div class="upgrade-item">
+                <span>Bullet Damage</span>
+                <div class="upgrade-bar"><div class="upgrade-fill" data-stat="bulletDamage"></div></div>
+                <button onclick="game.upgradePlayer('bulletDamage')">+</button>
+            </div>
+            <div class="upgrade-item">
+                <span>Reload</span>
+                <div class="upgrade-bar"><div class="upgrade-fill" data-stat="reload"></div></div>
+                <button onclick="game.upgradePlayer('reload')">+</button>
+            </div>
+            <div class="upgrade-item">
+                <span>Move Speed</span>
+                <div class="upgrade-bar"><div class="upgrade-fill" data-stat="moveSpeed"></div></div>
+                <button onclick="game.upgradePlayer('moveSpeed')">+</button>
+            </div>
+            <div id="upgrade-points">Points: 0</div>
+        </div>
+    </div>
+    <canvas id="gameCanvas"></canvas>
+    <script>
+        // Toggle upgrades panel on mobile
+        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        
+        if (isMobile || window.innerWidth <= 1024) {
+            const toggle = document.getElementById('toggle-upgrades');
+            const panel = document.getElementById('upgrade-panel');
+            toggle.style.display = 'inline';
+            
+            let collapsed = false;
+            toggle.addEventListener('click', (e) => {
+                e.stopPropagation();
+                collapsed = !collapsed;
+                const items = panel.querySelectorAll('.upgrade-item, #upgrade-points');
+                items.forEach(item => {
+                    item.style.display = collapsed ? 'none' : '';
+                });
+                toggle.textContent = collapsed ? '▲' : '▼';
+                
+                if (collapsed) {
+                    panel.style.maxHeight = '30px';
+                    panel.style.overflow = 'hidden';
+                } else {
+                    panel.style.maxHeight = window.innerWidth <= 360 ? '25vh' : 
+                                           window.innerWidth <= 480 ? '28vh' : 
+                                           window.innerWidth <= 768 ? '30vh' : '35vh';
+                    panel.style.overflow = 'auto';
+                }
+            });
+        }
+    </script>
+    <script src="script.js?v=10"></script>
+</body>
+</html>

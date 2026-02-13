@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Diep.io Mobile Test</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            overflow: hidden;
+            font-family: Arial, sans-serif;
+            background: #000;
+            touch-action: none;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+        
+        #info {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            background: rgba(0, 0, 0, 0.8);
+            color: #fff;
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 12px;
+            z-index: 1000;
+        }
+        
+        canvas {
+            display: block;
+            background: #000;
+            touch-action: none;
+        }
+        
+        .joystick-zone {
+            position: fixed;
+            bottom: 20px;
+            width: 45%;
+            height: 200px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px dashed rgba(255, 255, 255, 0.3);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 14px;
+            pointer-events: none;
+        }
+        
+        .joystick-zone.left {
+            left: 20px;
+        }
+        
+        .joystick-zone.right {
+            right: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div id="info">
+        <div>Device: <span id="device-type">Unknown</span></div>
+        <div>Screen: <span id="screen-size">0x0</span></div>
+        <div>Touch: <span id="touch-status">No</span></div>
+        <div>Joystick: <span id="joystick-status">Inactive</span></div>
+        <div>Position: <span id="position">0, 0</span></div>
+    </div>
+    
+    <div class="joystick-zone left">Movement</div>
+    <div class="joystick-zone right">Aim & Shoot</div>
+    
+    <canvas id="canvas"></canvas>
+    
+    <script>
+        // Device detection
+        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        document.getElementById('device-type').textContent = isMobile ? 'Mobile' : 'Desktop';
+        
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            document.getElementById('screen-size').textContent = `${canvas.width}x${canvas.height}`;
+        }
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+        
+        // Game state
+        let playerX = canvas.width / 2;
+        let playerY = canvas.height / 2;
+        let angle = 0;
+        
+        // Joystick state
+        const joystick = {
+            active: false,
+            startX: 0,
+            startY: 0,
+            currentX: 0,
+            currentY: 0,
+            dx: 0,
+            dy: 0
+        };
+        
+        let shooting = false;
+        let aimX = canvas.width / 2;
+        let aimY = canvas.height / 2;
+        
+        // Touch events
+        canvas.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            document.getElementById('touch-status').textContent = 'Yes';
+            
+            for (let touch of e.touches) {
+                const x = touch.clientX;
+                const y = touch.clientY;
+                
+                if (x < canvas.width / 2) {
+                    // Left side - joystick
+                    joystick.active = true;
+                    joystick.startX = x;
+                    joystick.startY = y;
+                    joystick.currentX = x;
+                    joystick.currentY = y;
+                    document.getElementById('joystick-status').textContent = 'Active';
+                } else {
+                    // Right side - shooting
+                    shooting = true;
+                    aimX = x;
+                    aimY = y;
+                }
+            }
+        });
+        
+        canvas.addEventListener('touchmove', (e) => {
+            e.preventDefault();
+            
+            for (let touch of e.touches) {
+                const x = touch.clientX;
+                const y = touch.clientY;
+                
+                if (x < canvas.width / 2 && joystick.active) {
+                    joystick.currentX = x;
+                    joystick.currentY = y;
+                    
+                    const dx = joystick.currentX - joystick.startX;
+                    const dy = joystick.currentY - joystick.startY;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    const maxDistance = 60;
+                    
+                    if (distance > 0) {
+                        joystick.dx = dx / maxDistance;
+                        joystick.dy = dy / maxDistance;
+                        
+                        const magnitude = Math.sqrt(joystick.dx * joystick.dx + joystick.dy * joystick.dy);
+                        if (magnitude > 1) {
+                            joystick.dx /= magnitude;
+                            joystick.dy /= magnitude;
+                        }
+                    }
+                } else if (x >= canvas.width / 2) {
+                    aimX = x;
+                    aimY = y;
+                }
+            }
+        });
+        
+        canvas.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            const touches = Array.from(e.touches);
+            
+            const leftTouch = touches.find(t => t.clientX < canvas.width / 2);
+            if (!leftTouch) {
+                joystick.active = false;
+                joystick.dx = 0;
+                joystick.dy = 0;
+                document.getElementById('joystick-status').textContent = 'Inactive';
+            }
+            
+            const rightTouch = touches.find(t => t.clientX >= canvas.width / 2);
+            if (!rightTouch) {
+                shooting = false;
+            }
+            
+            if (e.touches.length === 0) {
+                document.getElementById('touch-status').textContent = 'No';
+            }
+        });
+        
+        // Game loop
+        function update() {
+            // Move player
+            const speed = 5;
+            playerX += joystick.dx * speed;
+            playerY += joystick.dy * speed;
+            
+            // Keep in bounds
+            playerX = Math.max(25, Math.min(canvas.width - 25, playerX));
+            playerY = Math.max(25, Math.min(canvas.height - 25, playerY));
+            
+            // Aim
+            angle = Math.atan2(aimY - playerY, aimX - playerX);
+            
+            // Update UI
+            document.getElementById('position').textContent = `${Math.floor(playerX)}, ${Math.floor(playerY)}`;
+            
+            // Draw
+            ctx.fillStyle = '#000';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw joystick
+            if (joystick.active) {
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.2)';
+                ctx.beginPath();
+                ctx.arc(joystick.startX, joystick.startY, 60, 0, Math.PI * 2);
+                ctx.fill();
+                
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+                ctx.beginPath();
+                ctx.arc(joystick.currentX, joystick.currentY, 30, 0, Math.PI * 2);
+                ctx.fill();
+            }
+            
+            // Draw player
+            ctx.fillStyle = '#4A90E2';
+            ctx.beginPath();
+            ctx.arc(playerX, playerY, 25, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Draw barrel
+            ctx.fillStyle = '#4A90E2';
+            ctx.save();
+            ctx.translate(playerX, playerY);
+            ctx.rotate(angle);
+            ctx.fillRect(0, -6, 35, 12);
+            ctx.restore();
+            
+            // Draw aim indicator
+            if (shooting) {
+                ctx.strokeStyle = 'rgba(255, 0, 0, 0.5)';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.arc(aimX, aimY, 20, 0, Math.PI * 2);
+                ctx.stroke();
+            }
+            
+            requestAnimationFrame(update);
+        }
+        
+        update();
+        console.log('Mobile test ready!');
+    </script>
+</body>
+</html>

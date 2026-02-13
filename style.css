@@ -1,0 +1,475 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+}
+
+html {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    position: fixed;
+}
+
+body {
+    overflow: hidden;
+    font-family: 'Arial', sans-serif;
+    background: #000;
+    touch-action: none;
+    -webkit-user-select: none;
+    user-select: none;
+    width: 100vw;
+    height: 100vh;
+    position: fixed;
+    top: 0;
+    left: 0;
+}
+
+#gameCanvas {
+    display: block;
+    background: #000;
+    outline: none;
+    touch-action: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+}
+
+#ui-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 10;
+}
+
+#stats {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    color: #fff;
+    font-size: 18px;
+    text-align: right;
+    pointer-events: none;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+    padding-top: env(safe-area-inset-top);
+    padding-right: env(safe-area-inset-right);
+}
+
+#level, #score {
+    margin-bottom: 5px;
+}
+
+#leaderboard {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    margin-top: 80px;
+    background: rgba(0, 0, 0, 0.7);
+    padding: 15px;
+    border-radius: 8px;
+    color: #fff;
+    min-width: 200px;
+    pointer-events: none;
+    padding-top: calc(15px + env(safe-area-inset-top));
+    padding-right: calc(15px + env(safe-area-inset-right));
+}
+
+#leaderboard h3 {
+    margin-bottom: 10px;
+    font-size: 16px;
+    text-align: center;
+}
+
+#leaderboard-list {
+    list-style-position: inside;
+    font-size: 14px;
+}
+
+#leaderboard-list li {
+    margin: 5px 0;
+}
+
+#upgrade-panel {
+    position: absolute;
+    left: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(0, 0, 0, 0.8);
+    padding: 20px;
+    border-radius: 8px;
+    color: #fff;
+    min-width: 300px;
+    pointer-events: auto;
+    padding-left: calc(20px + env(safe-area-inset-left));
+}
+
+#upgrade-panel h3 {
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+.upgrade-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+    gap: 10px;
+}
+
+.upgrade-item span {
+    flex: 0 0 120px;
+    font-size: 14px;
+}
+
+.upgrade-bar {
+    flex: 1;
+    height: 20px;
+    background: #333;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.upgrade-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #4CAF50, #8BC34A);
+    width: 0%;
+    transition: width 0.3s;
+}
+
+.upgrade-item button {
+    width: 30px;
+    height: 30px;
+    border: none;
+    background: #2196F3;
+    color: #fff;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.upgrade-item button:hover {
+    background: #1976D2;
+}
+
+.upgrade-item button:disabled {
+    background: #555;
+    cursor: not-allowed;
+}
+
+#upgrade-points {
+    margin-top: 15px;
+    text-align: center;
+    font-size: 16px;
+    font-weight: bold;
+    color: #FFC107;
+}
+
+
+/* Мобильная адаптация */
+
+/* Очень маленькие телефоны (до 360px) */
+@media (max-width: 360px) {
+    #upgrade-panel {
+        left: 50%;
+        transform: translateX(-50%);
+        top: auto;
+        bottom: 5px;
+        padding: 4px;
+        min-width: 98%;
+        max-width: 98%;
+        max-height: 25vh;
+        overflow-y: auto;
+        background: rgba(0, 0, 0, 0.95);
+    }
+    
+    #upgrade-panel h3 {
+        font-size: 10px;
+        margin-bottom: 3px;
+    }
+    
+    .upgrade-item {
+        margin-bottom: 2px;
+        gap: 3px;
+    }
+    
+    .upgrade-item span {
+        flex: 0 0 50px;
+        font-size: 8px;
+    }
+    
+    .upgrade-bar {
+        height: 10px;
+    }
+    
+    .upgrade-item button {
+        width: 18px;
+        height: 18px;
+        font-size: 11px;
+    }
+    
+    #upgrade-points {
+        font-size: 10px;
+        margin-top: 3px;
+    }
+    
+    #stats {
+        top: 5px;
+        right: 5px;
+        font-size: 10px;
+    }
+    
+    #leaderboard {
+        top: 5px;
+        left: 5px;
+        right: auto;
+        margin-top: 0;
+        padding: 5px;
+        min-width: 90px;
+    }
+    
+    #leaderboard h3 {
+        font-size: 10px;
+        margin-bottom: 3px;
+    }
+    
+    #leaderboard-list {
+        font-size: 8px;
+    }
+    
+    #leaderboard-list li {
+        margin: 1px 0;
+    }
+}
+
+/* Маленькие телефоны (361px - 480px) */
+@media (min-width: 361px) and (max-width: 480px) {
+    #upgrade-panel {
+        left: 50%;
+        transform: translateX(-50%);
+        top: auto;
+        bottom: 8px;
+        padding: 6px;
+        min-width: 96%;
+        max-width: 96%;
+        max-height: 28vh;
+        overflow-y: auto;
+        background: rgba(0, 0, 0, 0.92);
+    }
+    
+    #upgrade-panel h3 {
+        font-size: 11px;
+        margin-bottom: 4px;
+    }
+    
+    .upgrade-item {
+        margin-bottom: 3px;
+        gap: 4px;
+    }
+    
+    .upgrade-item span {
+        flex: 0 0 60px;
+        font-size: 9px;
+    }
+    
+    .upgrade-bar {
+        height: 12px;
+    }
+    
+    .upgrade-item button {
+        width: 20px;
+        height: 20px;
+        font-size: 12px;
+    }
+    
+    #upgrade-points {
+        font-size: 11px;
+        margin-top: 4px;
+    }
+    
+    #stats {
+        top: 8px;
+        right: 8px;
+        font-size: 11px;
+    }
+    
+    #leaderboard {
+        top: 8px;
+        left: 8px;
+        right: auto;
+        margin-top: 0;
+        padding: 6px;
+        min-width: 100px;
+    }
+    
+    #leaderboard h3 {
+        font-size: 11px;
+        margin-bottom: 4px;
+    }
+    
+    #leaderboard-list {
+        font-size: 9px;
+    }
+    
+    #leaderboard-list li {
+        margin: 2px 0;
+    }
+}
+
+/* Средние телефоны (481px - 768px) */
+@media (min-width: 481px) and (max-width: 768px) {
+    #upgrade-panel {
+        left: 50%;
+        transform: translateX(-50%);
+        top: auto;
+        bottom: 10px;
+        padding: 8px;
+        min-width: 94%;
+        max-width: 94%;
+        max-height: 30vh;
+        overflow-y: auto;
+        background: rgba(0, 0, 0, 0.9);
+    }
+    
+    #upgrade-panel h3 {
+        font-size: 12px;
+        margin-bottom: 5px;
+    }
+    
+    .upgrade-item {
+        margin-bottom: 4px;
+        gap: 4px;
+    }
+    
+    .upgrade-item span {
+        flex: 0 0 70px;
+        font-size: 10px;
+    }
+    
+    .upgrade-bar {
+        height: 14px;
+    }
+    
+    .upgrade-item button {
+        width: 22px;
+        height: 22px;
+        font-size: 14px;
+    }
+    
+    #upgrade-points {
+        font-size: 12px;
+        margin-top: 5px;
+    }
+    
+    #stats {
+        top: 10px;
+        right: 10px;
+        font-size: 12px;
+    }
+    
+    #leaderboard {
+        top: 10px;
+        left: 10px;
+        right: auto;
+        margin-top: 0;
+        padding: 8px;
+        min-width: 120px;
+    }
+    
+    #leaderboard h3 {
+        font-size: 12px;
+        margin-bottom: 5px;
+    }
+    
+    #leaderboard-list {
+        font-size: 10px;
+    }
+    
+    #leaderboard-list li {
+        margin: 2px 0;
+    }
+}
+
+/* Планшеты (769px - 1024px) */
+@media (min-width: 769px) and (max-width: 1024px) {
+    #upgrade-panel {
+        left: 50%;
+        transform: translateX(-50%);
+        top: auto;
+        bottom: 15px;
+        padding: 10px;
+        min-width: 90%;
+        max-width: 700px;
+        max-height: 35vh;
+        overflow-y: auto;
+        background: rgba(0, 0, 0, 0.88);
+    }
+    
+    #upgrade-panel h3 {
+        font-size: 14px;
+        margin-bottom: 8px;
+    }
+    
+    .upgrade-item {
+        margin-bottom: 6px;
+        gap: 6px;
+    }
+    
+    .upgrade-item span {
+        flex: 0 0 90px;
+        font-size: 12px;
+    }
+    
+    .upgrade-bar {
+        height: 16px;
+    }
+    
+    .upgrade-item button {
+        width: 26px;
+        height: 26px;
+        font-size: 16px;
+    }
+    
+    #upgrade-points {
+        font-size: 14px;
+        margin-top: 8px;
+    }
+    
+    #stats {
+        top: 15px;
+        right: 15px;
+        font-size: 14px;
+    }
+    
+    #leaderboard {
+        top: 15px;
+        left: 15px;
+        right: auto;
+        margin-top: 0;
+        padding: 10px;
+        min-width: 150px;
+    }
+    
+    #leaderboard h3 {
+        font-size: 14px;
+        margin-bottom: 8px;
+    }
+    
+    #leaderboard-list {
+        font-size: 12px;
+    }
+    
+    #leaderboard-list li {
+        margin: 4px 0;
+    }
+}
+
+/* Большие планшеты и маленькие ноутбуки (1025px+) */
+@media (min-width: 1025px) {
+    /* Возвращаем оригинальный стиль для десктопа */
+}
